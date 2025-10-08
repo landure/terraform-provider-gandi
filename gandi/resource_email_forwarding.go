@@ -68,18 +68,9 @@ func resourceEmailForwardingRead(d *schema.ResourceData, meta interface{}) (err 
 	client := meta.(*clients).Email
 	source, domain := splitID(d.Id())
 
-	forwards, err := client.GetForwards(domain)
+	response, err := getEmailForwarding(domain, source, client)
 	if err != nil {
 		return
-	}
-
-	var response gandiemail.GetForwardRequest
-
-	for _, found := range forwards {
-		if found.Source == source {
-			response = found
-			break
-		}
 	}
 
 	if err = d.Set("source", d.Id()); err != nil {
@@ -125,25 +116,38 @@ func resourceEmailForwardingImport(d *schema.ResourceData, meta interface{}) (da
 	client := meta.(*clients).Email
 	source, domain := splitID(d.Id())
 
-	forwards, err := client.GetForwards(domain)
+	response, err := getEmailForwarding(domain, source, client)
 	if err != nil {
 		return
 	}
 
-	var response gandiemail.GetForwardRequest
-
-	for _, found := range forwards {
-		if found.Source == source {
-			response = found
-			break
-		}
-	}
-
-	sort.Strings(response.Destinations)
 	if err = d.Set("destinations", response.Destinations); err != nil {
 		return nil, fmt.Errorf("failed to set destinations for %s: %s", d.Id(), err)
 	}
 
 	data = []*schema.ResourceData{d}
+	return
+}
+
+func getEmailForwarding(domain string, source string, client *gandiemail.Email) (response gandiemail.GetForwardRequest, err error) {
+	parameters := gandiemail.GetForwardQueryParameters{
+		Source: source,
+	}
+
+	forwards, err := client.GetForwardsWithQueryParameters(domain, parameters)
+	if err != nil {
+		return
+	}
+
+	for _, found := range forwards {
+		if found.Source == source {
+			response = found
+
+			sort.Strings(response.Destinations)
+			return
+		}
+	}
+
+	err = fmt.Errorf("no forwarding found with source %s", source)
 	return
 }

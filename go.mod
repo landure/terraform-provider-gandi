@@ -10,3 +10,5 @@ require (
 	github.com/hashicorp/yamux v0.0.0-20190923154419-df201c70410d // indirect
 	github.com/oklog/run v1.1.0 // indirect
 )
+
+replace github.com/go-gandi/go-gandi => github.com/landure/go-gandi v0.2.0
