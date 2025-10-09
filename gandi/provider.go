@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"gandi_livedns_domain":         resourceLiveDNSDomain(),
 			"gandi_livedns_record":         resourceLiveDNSRecord(),
 			"gandi_domain":                 resourceDomain(),
+			"gandi_domain_webredirection":  resourceDomainWebRedirection(),
 			"gandi_mailbox":                resourceMailbox(),
 			"gandi_email_forwarding":       resourceEmailForwarding(),
 			"gandi_dnssec_key":             resourceDNSSECKey(),
